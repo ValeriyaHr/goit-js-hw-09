@@ -1,34 +1,39 @@
-    // Оголошуємо об'єкт formData з порожніми рядками
-    let formData = { email: "", message: "" };
+// Об'єкт для зберігання даних форми
+let formData = { email: "", message: "" };
 
-    const form = document.getElementById("feedback-form");
+const form = document.querySelector('.feedback-form');
+const emailInput = form.querySelector('input[name="email"]');
+const messageTextarea = form.querySelector('textarea[name="message"]');
 
-    // Відновлюємо дані з локального сховища
-    const savedData = localStorage.getItem("feedback-form-state");
-    if (savedData) {
-      formData = JSON.parse(savedData);
-      form.email.value = formData.email || "";
-      form.message.value = formData.message || "";
-    }
+function updateLocalStorage() {
+  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+}
 
-    // Відстежуємо події input і оновлюємо локальне сховище
-    form.addEventListener("input", (event) => {
-      formData[event.target.name] = event.target.value.trim();
-      localStorage.setItem("feedback-form-state", JSON.stringify(formData));
-    });
+form.addEventListener('input', (event) => {
+  const { name, value } = event.target;
+  formData[name] = value.trim(); // trim() видаляє пробіли з кінців рядка
+  updateLocalStorage();
+});
 
-    // Відстежуємо сабміт форми
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
+const savedData = localStorage.getItem('feedback-form-state');
+if (savedData) {
+  const savedFormData = JSON.parse(savedData);
+  emailInput.value = savedFormData.email || '';
+  messageTextarea.value = savedFormData.message || '';
+  formData.email = savedFormData.email || '';
+  formData.message = savedFormData.message || '';
+}
 
-      const { email, message } = formData;
-      if (!email || !message) {
-        alert("Fill please all fields");
-      } else {
-        console.log(formData);
-        formData = { email: "", message: "" };
-        localStorage.removeItem("feedback-form-state");
-        form.email.value = "";
-        form.message.value = "";
-      }
-    });
+form.addEventListener('submit', (event) => {
+  event.preventDefault(); 
+  if (formData.email === "" || formData.message === "") {
+    alert("Fill please all fields");
+    return;
+  }
+
+  console.log(formData); 
+  localStorage.removeItem('feedback-form-state'); 
+  formData.email = "";
+  formData.message = "";
+  form.reset(); 
+});
